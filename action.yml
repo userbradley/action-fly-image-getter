@@ -36,4 +36,4 @@ runs:
       shell: sh
       run: |
         image=$(flyctl image show -c ${{ inputs.configFile }} --json | jq -r '.[0] | "\(.Registry)/\(.Repository):\(.Tag)"' | awk '{printf("%s\n", $0)}')
-        echo "image=image" >> $GITHUB_OUTPUT
+        echo "image=$image" >> $GITHUB_OUTPUT
