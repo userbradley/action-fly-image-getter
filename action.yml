@@ -1,0 +1,39 @@
+name: Get Docker image from Fly Deployment
+description: Gets the docker image from a fly deployment for you to what ever you want to
+author: userbradley
+branding:
+  icon: cloud-snow
+  color: blue
+
+
+inputs:
+  flyToken:
+    description: Fly application token
+    required: true
+  configFile:
+    description: Name of the Config File to deploy with
+    required: false
+    default: "fly.toml"
+outputs:
+  image:
+    description: Image name
+    value: ${{ steps.image.outputs.image }}
+
+
+runs:
+  using: composite
+  steps:
+    - uses: superfly/flyctl-actions/setup-flyctl@master
+
+    - name: Login to Fly Registry
+      uses: docker/login-action@v2
+      with:
+        registry: registry.fly.io
+        username: x
+        password: ${{ inputs.flyToken }}
+    - name: Get Docker image
+      id: image
+      shell: sh
+      run: |
+        image=$(flyctl image show -c ${{ inputs.configFile }} --json | jq -r '.[0] | "\(.Registry)/\(.Repository):\(.Tag)"' | awk '{printf("%s\n", $0)}')
+        echo "image=image" >> $GITHUB_OUTPUT
